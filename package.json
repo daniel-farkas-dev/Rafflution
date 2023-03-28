@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "firebase": "^9.18.0",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
     "tailwind": "^4.0.0",
