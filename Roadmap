@@ -1,4 +1,7 @@
 Add Auth
+  Add pinia state management
+  Store user
+
 Build table view
 Build Landing page
 Build Main View
