@@ -30,8 +30,5 @@ export default defineComponent({
       });
     },
   },
-  mounted() {
-    console.log(auth);
-  },
 });
 </script>
