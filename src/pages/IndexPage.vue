@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { auth } from 'boot/firebaseInit';
-import { signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useUserStore } from 'stores/user';
 export default defineComponent({
   data() {
@@ -20,7 +20,7 @@ export default defineComponent({
   },
   methods: {
     signIn() {
-      signInWithRedirect(auth, new GoogleAuthProvider()).catch((err) => {
+      signInWithPopup(auth, new GoogleAuthProvider()).catch((err) => {
         console.error(err);
       });
     },

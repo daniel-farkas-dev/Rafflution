@@ -1,10 +1,39 @@
-export type lastEdited = Date;
-export type name = string;
-export interface projectDetails {
-  name: name;
-  lastEdited: lastEdited;
+export interface participant {
+  name: string;
 }
-export function timeAgo(date: Date):string{
+
+export interface projectDetails {
+  id: string;
+  name: string;
+  lastEdited: Date;
+}
+
+export enum color {
+  red = 'red',
+  orange = 'orange',
+  yellow = 'yellow',
+  green = 'green',
+  blue = 'blue',
+  black = 'black',
+  white = 'white',
+}
+
+export interface projectDocument {
+  info: {
+    name: string;
+    lastEdited: Date;
+    created: Date;
+    label: color;
+  };
+  participants: participant[];
+  users: {
+    owner: string;
+    editors: string[];
+    viewers: string[];
+  };
+}
+
+export function timeAgo(date: Date): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const seconds = Math.floor(diff / 1000);

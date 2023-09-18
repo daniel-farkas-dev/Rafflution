@@ -1,1 +1,8 @@
 /* app global css */
+:root {
+  --LABEL_red    : #d94a4a;
+  --LABEL_orange : #f27d52;
+  --LABEL_yellow : #f2d649;
+  --LABEL_green  : #80d973;
+  --LABEL_blue   : #5252F2;
+}

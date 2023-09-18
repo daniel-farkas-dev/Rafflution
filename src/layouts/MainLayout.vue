@@ -19,7 +19,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="rightDrawerOpen" bordered show-if-above side="right" behavior="desktop">
+    <q-drawer v-model="rightDrawerOpen" bordered side="right" behavior="desktop">
       <!-- drawer content -->
     </q-drawer>
 
