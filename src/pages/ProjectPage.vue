@@ -8,13 +8,15 @@
         It may have been deleted or you may have typed the URL incorrectly.
       </div>
     </template>
-    <template v-if="denied">
+    <template v-else-if="denied">
       <div class="text-center text-h6">
         You do not have permission to view this file.
       </div>
       <div class="text-center text-subtitle1">
         If you believe this is an error, please contact the owner of this file.
       </div>
+    </template>
+    <template v-else>
     </template>
   </q-page>
 </template>
