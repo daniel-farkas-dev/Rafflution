@@ -23,7 +23,7 @@
                 @click="projectForm = false"
               />
             </q-card-section>
-            <q-form @reset="onReset" @submit="onSubmit">
+            <q-form @reset="onReset" @submit="createProject">
               <q-input
                 v-model="newProject.info.name"
                 label="Project Name"
@@ -93,12 +93,24 @@
 import { defineComponent } from 'vue';
 import { useUserStore } from 'stores/user';
 import { db } from 'boot/firebaseInit';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
-  color,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  arrayUnion,
+  DocumentReference,
+  updateDoc,
+} from 'firebase/firestore';
+import {
+  Color,
   projectDetails,
   projectDocument,
+  Tier,
   timeAgo,
+  userDocument,
 } from 'assets/utilities';
 import ProjectRow from 'components/ProjectRow.vue';
 
@@ -113,7 +125,7 @@ export default defineComponent({
       newProject: {
         info: {
           name: '',
-          label: '' as color,
+          label: '' as Color,
         },
         users: {
           owner: '',
@@ -150,6 +162,7 @@ export default defineComponent({
         },
       ],
       nameError: 'Project name is required',
+      userDocRef: null as DocumentReference<userDocument> | null,
     };
   },
   methods: {
@@ -158,34 +171,49 @@ export default defineComponent({
       this.newProject = {
         info: {
           name: '',
-          label: '' as color,
+          label: '' as Color,
         },
         users: {
           owner: '',
         },
       } as projectDocument;
     },
-    onSubmit() {
+    async createProject() {
       if (
         this.newProject.info.name != '' &&
         this.newName() &&
         this.newProject.info.name.length <= 20 &&
         this.allowedChars() &&
-        this.newProject.info.label != ('' as color)
-      )
+        this.newProject.info.label != ('' as Color)
+      ) {
         this.projectForm = false;
-      this.$q.notify({
-        message: 'Project created successfully',
-        color: 'positive',
-        icon: 'check',
-        position: 'top',
-        timeout: 5000,
-      });
-      this.projects.push({
-        id: 'test',
-        name: this.newProject.info.name,
-        lastEdited: new Date(),
-      });
+        const docRef = await addDoc(collection(db, 'Projects'), {
+          info: {
+            name: this.newProject.info.name,
+            label: this.newProject.info.label,
+            lastEdited: serverTimestamp(),
+            created: serverTimestamp(),
+            term: 1,
+          },
+          participants: [],
+          users: {
+            owner: this.userStore.user?.uid,
+            editors: [],
+            viewers: [],
+          },
+        });
+        await updateDoc(this.userDocRef as DocumentReference<userDocument>, {
+          projects: arrayUnion(docRef.id),
+        });
+        this.$router.push('/edit/' + docRef.id);
+        this.$q.notify({
+          message: 'Project created successfully',
+          color: 'positive',
+          icon: 'check',
+          position: 'top',
+          timeout: 5000,
+        });
+      }
     },
     newName() {
       for (let project of this.projects) {
@@ -209,15 +237,19 @@ export default defineComponent({
       this.$router.push('/');
     } else {
       // 1. Check to see if user has a document
-      let docRef = doc(db, 'Users', this.userStore.user.uid);
-      const docSnap = await getDoc(docRef);
+      this.userDocRef = doc(
+        db,
+        'Users',
+        this.userStore.user.uid
+      ) as DocumentReference<userDocument>;
+      const docSnap = await getDoc(this.userDocRef);
       // 2. If not, create a document
       if (!docSnap.exists()) {
-        await setDoc(doc(db, 'Users', this.userStore.user.uid), {
-          email: this.userStore.user.email,
-          tier: 'basic',
+        await setDoc(this.userDocRef, {
+          email: this.userStore.user.email as string,
+          tier: Tier.basic,
           projects: [],
-        });
+        } as userDocument);
       }
       // 3. Iterate through the document and create a list of all the projects
       else {
@@ -235,6 +267,7 @@ export default defineComponent({
               lastEdited: new Date(
                 projectSnap.data()?.info.lastEdited.toDate()
               ),
+              label: projectSnap.data()?.info.label,
             };
             this.projects.push(project);
           }

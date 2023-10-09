@@ -1,14 +1,18 @@
 export interface participant {
   name: string;
+  timesCame: number[];
+  timesWon: number[];
+  age?: number;
 }
 
 export interface projectDetails {
   id: string;
   name: string;
   lastEdited: Date;
+  label: Color;
 }
 
-export enum color {
+export enum Color {
   red = 'red',
   orange = 'orange',
   yellow = 'yellow',
@@ -23,7 +27,8 @@ export interface projectDocument {
     name: string;
     lastEdited: Date;
     created: Date;
-    label: color;
+    label: Color;
+    term: number;
   };
   participants: participant[];
   users: {
@@ -58,4 +63,21 @@ export function timeAgo(date: Date): string {
     return seconds + ' second' + (seconds > 1 ? 's' : '') + ' ago';
   }
   return 'just now';
+}
+
+export enum View {
+  card = 'card',
+  table = 'table',
+}
+
+export enum Tier {
+  basic = 'basic',
+  premium = 'premium',
+  admin = 'admin',
+}
+
+export interface userDocument {
+  email: string;
+  projects: string[];
+  tier: Tier;
 }
