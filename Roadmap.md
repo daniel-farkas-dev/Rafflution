@@ -3,11 +3,13 @@ To build:
 - Project page
   * Participant Management
     - [x] Add Participants
-    - [ ] Edit Participants
-    - [ ] View Participants
-    - [ ] Delete Participants
-    - [ ] Search Participants
-    - [ ] Filter Participants
+    - [x] Edit Participants
+    - [x] View Participants
+    - [x] Toggle Participants
+    - [x] Delete Participants
+      - [ ] Ask for Conformation
+    - [x] Search Participants
+    - [x] Filter Participants
   * Project Management
     - [ ] Share Project
     - [ ] Rename Project
@@ -19,3 +21,4 @@ To build:
     - [ ] Export Winners to animation
   * Extras
     - [ ] Spreadsheet like interface for all weeks
+    - [ ] Internet connection detection

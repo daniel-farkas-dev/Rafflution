@@ -31,9 +31,8 @@
             </q-toolbar-title>
             <q-btn
               class="text-capitalize"
-              color="indigo-7"
+              color="secondary"
               label="Add Participant"
-              outline
               @click="addParticipantDialog = true"
             ></q-btn>
             <q-dialog v-model="addParticipantDialog">
@@ -106,6 +105,17 @@
                 { label: 'Table', value: View.table },
               ]"
             />
+            <q-input v-model="searchTerm" standout dense bg-color="secondary" />
+            <q-btn @click="searchTerm = ''" label="Reset" color="warning" />
+            <q-select
+              v-model="filter"
+              :options="Object.values(Filter)"
+              filled
+              label="Filter"
+              bg-color="secondary"
+              label-color="black"
+              dense
+            />
             <q-space />
             <q-avatar
               v-if="userStore.isUserSignedIn"
@@ -128,13 +138,16 @@
               <ParticipantCard
                 v-for="(participant, index) in projectStore.project
                   ?.participants"
+                class="ParticipantCard"
                 :key="index"
                 :participantId="index as number"
+                :searchTerm="searchTerm"
+                :filterType="filter as Filter"
                 @click="this.projectStore.togglePresence(index as number)"
               ></ParticipantCard>
             </div>
           </template>
-          <template v-else> </template>
+          <template v-else></template>
         </q-page-container>
       </q-layout>
     </template>
@@ -145,7 +158,7 @@
 import { defineComponent } from 'vue';
 import { db } from 'boot/firebaseInit';
 import { doc, DocumentReference, getDoc, onSnapshot } from 'firebase/firestore';
-import { participant, projectDocument, View } from 'assets/utilities';
+import { Filter, participant, projectDocument, View } from 'assets/utilities';
 import { FirebaseError } from 'firebase/app';
 import ParticipantCard from 'components/ParticipantCard.vue';
 import { useProjectStore } from 'stores/project';
@@ -179,11 +192,21 @@ export default defineComponent({
         timesWon: [],
         age: undefined,
       } as participant,
+      searchTerm: '',
+      filter: Filter.all,
     };
   },
   computed: {
+    Filter() {
+      return Filter;
+    },
     View() {
       return View;
+    },
+  },
+  methods: {
+    edit(index: number) {
+      console.log(index);
     },
   },
   async mounted() {
@@ -229,3 +252,8 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+.q-select {
+  width: 150px;
+}
+</style>

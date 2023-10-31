@@ -194,6 +194,7 @@ export default defineComponent({
             lastEdited: serverTimestamp(),
             created: serverTimestamp(),
             term: 1,
+            resetWeek: 0,
           },
           participants: [],
           users: {

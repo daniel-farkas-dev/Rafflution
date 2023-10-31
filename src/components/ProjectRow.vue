@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { timeAgo } from 'assets/utilities';
 import type { projectDetails } from 'assets/utilities';
 export default defineComponent({
@@ -29,7 +29,7 @@ export default defineComponent({
   },
   props: {
     project: {
-      type: Object as () => projectDetails,
+      type: Object as PropType<projectDetails>,
       required: true,
     },
   },

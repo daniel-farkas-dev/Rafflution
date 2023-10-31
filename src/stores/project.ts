@@ -3,6 +3,7 @@ import type { projectDocument } from 'assets/utilities';
 import type { DocumentReference } from 'firebase/firestore';
 import { arrayUnion, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { participant } from 'assets/utilities';
+import { arrayRemove } from '@firebase/firestore';
 
 export const useProjectStore = defineStore('project', {
   state: () => ({
@@ -71,7 +72,40 @@ export const useProjectStore = defineStore('project', {
         participants: arrayUnion(participant),
       });
     },
-    isNewName(name: string) {
+    async editParticipant(index: number, participant: participant) {
+      if (
+        !this.isAgeReal(participant.age) &&
+        !this.isAllowedName(participant.name) &&
+        !this.isNewName(participant.name)
+      ) {
+        console.error('Invalid Data for Participant');
+        return;
+      }
+      if (participant.age != undefined) {
+        participant.age = participant.age - 0; //Remove leading zeros
+      } else {
+        delete participant.age;
+      }
+      if (this.project?.participants == undefined) {
+        console.error('Participants not defined');
+        return;
+      }
+      const newArr = this.project?.participants;
+      newArr[index] = participant;
+      await updateDoc(this.docRef as DocumentReference<projectDocument>, {
+        participants: newArr,
+      });
+    },
+    async deleteParticipant(index: number) {
+      console.log('Attempted Deletion');
+      await updateDoc(this.docRef as DocumentReference<projectDocument>, {
+        participants: arrayRemove(this.project?.participants[index]),
+      });
+    },
+    isNewName(name: string, currentName?: string) {
+      if (name == currentName) {
+        return true;
+      }
       return !this.project?.participants.some((el) => el.name === name);
     },
     isAgeReal(age: number | undefined) {

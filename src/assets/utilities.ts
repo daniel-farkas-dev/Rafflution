@@ -29,6 +29,7 @@ export interface projectDocument {
     created: Date;
     label: Color;
     term: number;
+    resetWeek: number;
   };
   participants: participant[];
   users: {
@@ -80,4 +81,12 @@ export interface userDocument {
   email: string;
   projects: string[];
   tier: Tier;
+}
+
+export enum Filter {
+  all = 'all',
+  present = 'present',
+  absent = 'absent',
+  won = 'won',
+  eligible = 'eligible',
 }
