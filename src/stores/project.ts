@@ -115,5 +115,72 @@ export const useProjectStore = defineStore('project', {
       //Check if only letters numbers and spaces and dashes
       return /^[a-zA-Z0-9 -]*$/.test(name);
     },
+    isEligible(participant: participant) {
+      console.log(
+        Math.max(...participant.timesWon),
+        this.project?.info.resetTerm,
+        '<'
+      );
+      return participant.timesWon.length == 0 ||
+        this.project?.info.resetTerm == undefined
+        ? true
+        : Math.max(...participant.timesWon) < this.project?.info.resetTerm;
+    },
+    numberOfEligible() {
+      return this.project?.participants.filter(
+        (el) =>
+          this.isEligible(el) &&
+          el.timesCame.includes(this.project?.info.term as number)
+      ).length;
+    },
+    drawWinners(num: number): participant[] | [] {
+      // Draw the number of winners from the eligible participants that came this term
+      // No duplicate winners
+      // If there are not enough eligible participants throw an error
+      const eligible = this.project?.participants.filter(
+        (el) =>
+          this.isEligible(el) &&
+          el.timesCame.includes(this.project?.info.term as number)
+      );
+      if (eligible?.length == undefined || eligible.length < num) {
+        console.error('Not enough eligible participants');
+        return [];
+      }
+      const winners: participant[] = [];
+      for (let i = 0; i < num; i++) {
+        const index = Math.floor(Math.random() * eligible.length);
+        winners.push(eligible[index]);
+        eligible.splice(index, 1);
+      }
+      return winners;
+    },
+    async saveWinners(winners: participant[]): Promise<boolean> {
+      let success = false;
+      const term = this.project?.info.term;
+      if (term && this.docRef) {
+        await updateDoc(this.docRef, {
+          participants: this.project?.participants.map((el) => {
+            if (winners.includes(el) && !el.timesWon.includes(term)) {
+              return {
+                ...el,
+                timesWon: [...el.timesWon, term],
+              };
+            }
+            return el;
+          }),
+          'info.lastEdited': serverTimestamp(),
+        })
+          .then(() => {
+            success = true;
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      } else {
+        console.error('Missing Data');
+      }
+      return success;
+    },
   },
 });
+//TODO: Move some actions to getters

@@ -29,7 +29,7 @@ export interface projectDocument {
     created: Date;
     label: Color;
     term: number;
-    resetWeek: number;
+    resetTerm: number;
   };
   participants: participant[];
   users: {

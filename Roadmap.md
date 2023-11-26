@@ -16,9 +16,12 @@ To build:
     - [ ] Change Project Color
     - [ ] Set to next week
   * Winner Management
-    - [ ] Draw Winners
-    - [ ] Save Winners
+    - [x] Draw Winners
+    - [x] Save Winners
+    - [ ] Reset Winners
     - [ ] Export Winners to animation
   * Extras
     - [ ] Spreadsheet like interface for all weeks
     - [ ] Internet connection detection
+    - [ ] Auto backup db
+    - [ ] Label prizes

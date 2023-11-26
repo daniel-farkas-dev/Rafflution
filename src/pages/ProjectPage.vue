@@ -94,7 +94,7 @@
                 </q-form>
               </q-card>
             </q-dialog>
-            <q-btn-toggle
+            <!--            <q-btn-toggle
               v-model="viewType"
               toggle-color="secondary"
               rounded
@@ -104,8 +104,14 @@
                 { label: 'Card', value: View.card },
                 { label: 'Table', value: View.table },
               ]"
+            />-->
+            <q-input
+              v-model="searchTerm"
+              standout
+              dense
+              bg-color="secondary"
+              label="Search Participants"
             />
-            <q-input v-model="searchTerm" standout dense bg-color="secondary" />
             <q-btn @click="searchTerm = ''" label="Reset" color="warning" />
             <q-select
               v-model="filter"
@@ -115,6 +121,11 @@
               bg-color="secondary"
               label-color="black"
               dense
+            />
+            <q-btn
+              color="secondary"
+              label="Draw Winners"
+              @click="raffleDialog = true"
             />
             <q-space />
             <q-avatar
@@ -149,6 +160,74 @@
           </template>
           <template v-else></template>
         </q-page-container>
+        <q-dialog v-model="raffleDialog">
+          <q-card>
+            <q-card-section class="flex justify-between q-px-xs">
+              <div class="text-h6">Draw Winners</div>
+              <q-btn
+                flat
+                round
+                dense
+                icon="close"
+                class="q-ml-sm"
+                @click="raffleDialog = false"
+              />
+            </q-card-section>
+            <q-input
+              :disable="this.projectStore.numberOfEligible() <= 0"
+              label="Number of Winners"
+              class="q-mx-sm"
+              outlined
+              type="number"
+              v-model.number="winnerCount"
+              min="0"
+              :max="this.projectStore.numberOfEligible()"
+            />
+            <q-card-section class="text-subtitle1">
+              There are {{ this.projectStore.numberOfEligible() }} eligible
+              participants.
+            </q-card-section>
+            <q-card-section v-if="unsavedWinners.length > 0">
+              Unsaved Winners:
+              <q-list dense>
+                <q-item
+                  v-for="winner in unsavedWinners"
+                  :key="winner.name"
+                  class="no-padding"
+                >
+                  <q-chip
+                    removable
+                    class="no-margin"
+                    @remove="
+                      unsavedWinners.splice(unsavedWinners.indexOf(winner), 1)
+                    "
+                  >
+                    {{ winner.name }}
+                  </q-chip>
+                </q-item>
+              </q-list>
+            </q-card-section>
+            <q-card-actions align="right">
+              <q-btn
+                class="q-ml-md"
+                color="primary"
+                :disable="
+                  winnerCount <= 0 ||
+                  winnerCount > this.projectStore.numberOfEligible()
+                "
+                label="Draw"
+                @click="unsavedWinners = projectStore.drawWinners(winnerCount)"
+              />
+              <q-btn
+                :disable="unsavedWinners.length <= 0"
+                class="q-ml-md"
+                color="secondary"
+                label="Save"
+                @click="handleWinners(projectStore.saveWinners(unsavedWinners))"
+              />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
       </q-layout>
     </template>
   </q-page>
@@ -194,6 +273,9 @@ export default defineComponent({
       } as participant,
       searchTerm: '',
       filter: Filter.all,
+      raffleDialog: false,
+      winnerCount: 0,
+      unsavedWinners: [] as participant[],
     };
   },
   computed: {
@@ -207,6 +289,22 @@ export default defineComponent({
   methods: {
     edit(index: number) {
       console.log(index);
+    },
+    async handleWinners(saved: Promise<boolean>) {
+      console.log(await saved);
+      if (await saved) {
+        this.unsavedWinners = [];
+        this.raffleDialog = false;
+      } else {
+        console.log('This looks bad');
+        this.$q.notify({
+          message: 'There was an error saving the winners.',
+          color: 'negative',
+          icon: 'warning',
+          position: 'top',
+          timeout: 5000,
+        });
+      }
     },
   },
   async mounted() {
@@ -246,6 +344,7 @@ export default defineComponent({
         console.error(e);
       }
     }
+    console.log(this.projectStore.numberOfEligible());
   },
   unmounted() {
     this.projectStore.deleteProject();

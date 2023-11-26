@@ -14,9 +14,10 @@
     <span class="row inline no-wrap justify-between items-baseline full-width">
       <span id="name" class="text-h6">
         {{ participant.name + (participant?.age ? ', ' : '') }}
-        <span class="text-subtitle2">{{ participant.age }}</span>
+        <span class="text-subtitle2"> {{ participant.age }}</span>
       </span>
       <span id="sub" class="">
+        {{ projectStore.isEligible(participant) }} ~
         {{ participant.timesCame.length }}
       </span>
     </span>
@@ -126,13 +127,8 @@ export default defineComponent({
       return this.projectStore.project?.participants[this.participantId];
     },
     isWanted() {
-      if (
-        this.participant?.timesWon == undefined ||
-        this.projectStore.project?.info?.resetWeek == undefined
-      ) {
-        console.error(
-          'participant?.timesWon or projectStore.project?.info?.resetWeek is undefined'
-        );
+      if (this.participant?.timesWon == undefined) {
+        console.error('participant?.timesWon is undefined');
         return true;
       }
       switch (this.filterType) {
@@ -159,19 +155,13 @@ export default defineComponent({
             return false;
           }
         case Filter.won:
-          if (
-            Math.max(...this.participant?.timesWon) >=
-            (this.projectStore.project?.info?.resetWeek as number)
-          ) {
+          if (!this.projectStore.isEligible(this.participant)) {
             break;
           } else {
             return false;
           }
         case Filter.eligible:
-          if (
-            Math.max(...this.participant?.timesWon) <=
-            (this.projectStore.project?.info?.resetWeek as number)
-          ) {
+          if (this.projectStore.isEligible(this.participant)) {
             break;
           } else {
             return false;
