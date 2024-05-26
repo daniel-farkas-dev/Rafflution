@@ -31,3 +31,13 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# Firebase related directories and files
+/.firebase/
+.firebaserc
+/src/secrets.ts
+
+# Firebase related directories and files
+/.firebase/
+.firebaserc
+/src/secrets.ts
